@@ -1,17 +1,10 @@
 import type { Metadata, Viewport } from 'next';
-import { Noto_Sans_JP } from 'next/font/google';
 import './globals.css';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { ScheduleProvider } from '@/lib/hooks/useSchedules';
 import { LeafletStyles } from '@/components/ui/LeafletStyles';
 import { ServiceWorkerRegister } from '@/components/ui/ServiceWorkerRegister';
 import { AlarmBanner } from '@/components/ui/AlarmBanner';
-
-const notoSansJP = Noto_Sans_JP({
-  subsets: ['latin'],
-  weight: ['400', '500', '700'],
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: 'MoveAssist - 移動判断アシスト',
@@ -35,7 +28,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
-      <body className={notoSansJP.className}>
+      <body>
         <ScheduleProvider>
           <LeafletStyles />
           <ServiceWorkerRegister />
