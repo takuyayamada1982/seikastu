@@ -9,18 +9,22 @@ type Props = {
 
 export default function AppShell({ title, description, children }: Props) {
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-slate-50 safe-area-top safe-area-bottom">
-      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
-        <div className="px-4 py-4">
-          <p className="text-xs font-medium text-slate-500">MoveAssist</p>
-          <h1 className="mt-1 text-xl font-bold text-slate-900">{title}</h1>
+    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col text-cyan-50 safe-area-top safe-area-bottom">
+      <header className="sticky top-0 z-20 border-b border-cyan-400/10 bg-slate-950/75 backdrop-blur-xl">
+        <div className="mx-auto w-full max-w-md px-4 py-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300/80 neon-text">
+            MoveAssist
+          </p>
+          <h1 className="mt-1 text-xl font-bold text-white neon-text">{title}</h1>
           {description ? (
-            <p className="mt-1 text-sm text-slate-600">{description}</p>
+            <p className="mt-1 text-sm text-cyan-100/70">{description}</p>
           ) : null}
         </div>
       </header>
 
-      <main className="flex-1 px-4 py-4 pb-24">{children}</main>
+      <main className="mx-auto flex-1 w-full max-w-md px-4 py-4 pb-24">
+        {children}
+      </main>
 
       <BottomNav />
     </div>
