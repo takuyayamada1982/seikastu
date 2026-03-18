@@ -9,7 +9,12 @@ import { CATEGORY_ICONS } from "@/lib/types";
 import { useCurrentPosition } from "@/lib/hooks/useCurrentPosition";
 import { useSchedules } from "@/lib/hooks/useSchedules";
 import { useWeather } from "@/lib/hooks/useWeather";
-import { buildRouteOptions } from "@/lib/scoring/routes";
+import {
+  buildRouteOptions,
+  formatMinutesUntil,
+  getMinutesUntil,
+  getRouteBadges,
+} from "@/lib/scoring/routes";
 
 export default function HomePage() {
   const { nextSchedule } = useSchedules();
@@ -22,6 +27,17 @@ export default function HomePage() {
     nextSchedule?.startTime
   );
   const bestRoute = routes[0];
+  const badges = getRouteBadges(routes);
+  const minutesUntil = getMinutesUntil(nextSchedule?.startTime);
+
+  const bestBadge =
+    bestRoute.id === badges.fastestId
+      ? "最短"
+      : bestRoute.id === badges.cheapestId
+      ? "最安"
+      : bestRoute.id === badges.easiestId
+      ? "負担少"
+      : undefined;
 
   return (
     <AppShell
@@ -39,7 +55,7 @@ export default function HomePage() {
               {positionLoading
                 ? "取得中"
                 : position
-                ? `${position.latitude.toFixed(3)}, ${position.longitude.toFixed(3)}`
+                ? "位置情報を取得済み"
                 : "未取得"}
             </p>
             <p>気温: {weatherLoading ? "取得中" : weather.temperatureText}</p>
@@ -63,14 +79,21 @@ export default function HomePage() {
           }
         >
           {nextSchedule ? (
-            <div className="space-y-2">
-              <p className="text-base font-semibold text-slate-900">
-                {CATEGORY_ICONS[nextSchedule.category]} {nextSchedule.title}
-              </p>
-              <p className="text-sm text-slate-600">
-                {nextSchedule.startTime} / {nextSchedule.destinationName}
-              </p>
-              <p className="text-sm text-slate-600">カテゴリ: {nextSchedule.category}</p>
+            <div className="space-y-3">
+              <div>
+                <p className="text-base font-semibold text-slate-900">
+                  {CATEGORY_ICONS[nextSchedule.category]} {nextSchedule.title}
+                </p>
+                <p className="mt-1 text-sm text-slate-600">
+                  {nextSchedule.startTime} / {nextSchedule.destinationName}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <StatusPill label={nextSchedule.category} tone="slate" />
+                <StatusPill label={formatMinutesUntil(minutesUntil)} tone="green" />
+              </div>
+
               {nextSchedule.memo ? (
                 <div className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
                   {nextSchedule.memo}
@@ -98,7 +121,7 @@ export default function HomePage() {
             </Link>
           }
         >
-          <RouteCard route={bestRoute} />
+          <RouteCard route={bestRoute} badge={bestBadge} />
         </SectionCard>
 
         <SectionCard
