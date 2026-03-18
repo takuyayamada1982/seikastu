@@ -1,4 +1,9 @@
-import { NearbySuggestion, RouteOption, TaskItem, WeatherInfo } from "@/lib/types";
+import {
+  NearbySuggestion,
+  RouteOption,
+  TaskItem,
+  WeatherInfo,
+} from "@/lib/types";
 
 export const mockWeather: WeatherInfo = {
   label: "雨",
