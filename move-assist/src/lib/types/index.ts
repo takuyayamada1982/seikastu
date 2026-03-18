@@ -21,8 +21,42 @@ export type TaskItem = {
   title: string;
   category: TaskCategory;
   destinationName: string;
-  startTime: string;
+  startTime: string; // HH:mm
   memo?: string;
+  createdAt: string;
+};
+
+export type RouteOption = {
+  id: string;
+  type: RouteType;
+  durationMin: number;
+  durationText: string;
+  costYen: number;
+  costText: string;
+  walkingLevel: "少" | "中" | "多";
+  score: number;
+  scoreLabel: "おすすめ" | "候補" | "注意";
+  reason: string;
+  caution?: string;
+};
+
+export type NearbySuggestion = {
+  id: string;
+  type: "ランチ" | "カフェ" | "コンビニ" | "休憩" | "その他";
+  title: string;
+  description: string;
+  distanceText: string;
+};
+
+export type WeatherInfo = {
+  label: WeatherKind;
+  temperatureText: string;
+  note: string;
+};
+
+export type CurrentPosition = {
+  latitude: number;
+  longitude: number;
 };
 
 export const CATEGORY_LABELS: Record<TaskCategory, string> = {
