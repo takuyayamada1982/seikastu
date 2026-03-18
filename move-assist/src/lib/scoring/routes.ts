@@ -60,7 +60,7 @@ function buildBaseOptions(): RouteOption[] {
       walkingLevel: "少",
       score: 60,
       scoreLabel: "候補",
-      reason: "比較的早く、歩行負荷も少ない候補です。",
+      reason: "比較的早く、歩行負荷も少なめの候補です。",
     },
   ];
 }
@@ -71,21 +71,30 @@ function scoreToLabel(score: number): RouteOption["scoreLabel"] {
   return "注意";
 }
 
+export function getMinutesUntil(startTime?: string) {
+  if (!startTime) return null;
+  const [h, m] = startTime.split(":").map(Number);
+  if (Number.isNaN(h) || Number.isNaN(m)) return null;
+
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  return h * 60 + m - currentMinutes;
+}
+
+export function formatMinutesUntil(minutesUntil: number | null) {
+  if (minutesUntil === null) return "未設定";
+  if (minutesUntil < 0) return "開始時刻を過ぎています";
+  if (minutesUntil === 0) return "まもなく開始";
+  return `あと${minutesUntil}分`;
+}
+
 export function buildRouteOptions(
   category: TaskCategory,
   weather: WeatherKind,
   startTime?: string
 ): RouteOption[] {
   const items = buildBaseOptions().map((item) => ({ ...item }));
-
-  const now = new Date();
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  let minutesUntil = 999;
-
-  if (startTime) {
-    const [h, m] = startTime.split(":").map(Number);
-    minutesUntil = h * 60 + m - currentMinutes;
-  }
+  const minutesUntil = getMinutesUntil(startTime) ?? 999;
 
   for (const item of items) {
     if (weather === "雨") {
@@ -154,11 +163,33 @@ export function buildRouteOptions(
     }
 
     if (item.type === "車") {
-      item.reason =
-        "比較的早く移動しやすく、歩行負荷も少なめです。";
+      item.reason = "比較的早く移動しやすく、歩行負荷も少なめです。";
       item.caution = "駐車場所や渋滞の影響を受けることがあります。";
     }
   }
 
   return items.sort((a, b) => b.score - a.score);
+}
+
+export function getRouteBadges(routes: RouteOption[]) {
+  if (routes.length === 0) {
+    return {
+      fastestId: "",
+      cheapestId: "",
+      easiestId: "",
+    };
+  }
+
+  const fastest = [...routes].sort((a, b) => a.durationMin - b.durationMin)[0];
+  const cheapest = [...routes].sort((a, b) => a.costYen - b.costYen)[0];
+  const walkingRank = { 少: 0, 中: 1, 多: 2 } as const;
+  const easiest = [...routes].sort(
+    (a, b) => walkingRank[a.walkingLevel] - walkingRank[b.walkingLevel]
+  )[0];
+
+  return {
+    fastestId: fastest.id,
+    cheapestId: cheapest.id,
+    easiestId: easiest.id,
+  };
 }
