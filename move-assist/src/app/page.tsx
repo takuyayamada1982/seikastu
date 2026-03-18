@@ -1,151 +1,81 @@
-'use client';
-import dynamic from 'next/dynamic';
-import { useLocation } from '@/lib/hooks/useLocation';
-import { useWeather } from '@/lib/hooks/useWeather';
-import { useSchedules } from '@/lib/hooks/useSchedules';
-import { useTransport } from '@/lib/hooks/useTransport';
-import { useReverseGeocode } from '@/lib/hooks/useReverseGeocode';
-import { WeatherCard } from '@/components/home/WeatherCard';
-import { NextScheduleCard } from '@/components/home/NextScheduleCard';
-import { TransportCard } from '@/components/transport/TransportCard';
-import { formatMinutesUntil, getMinutesUntil } from '@/lib/utils/scoring';
-import Link from 'next/link';
-
-const MapView = dynamic(
-  () => import('@/components/ui/MapView').then((m) => m.MapView),
-  { ssr: false, loading: () => <div className="h-44 bg-gray-100 rounded-2xl animate-pulse" /> }
-);
+import Link from "next/link";
+import AppShell from "@/components/ui/AppShell";
+import RouteCard from "@/components/ui/RouteCard";
+import SectionCard from "@/components/ui/SectionCard";
+import StatusPill from "@/components/ui/StatusPill";
+import { mockRouteOptions, mockTasks, mockWeather } from "@/lib/data/mock";
 
 export default function HomePage() {
-  const { location, error: locError, loading: locLoading, refresh } = useLocation();
-  const { weather, error: weatherError, loading: weatherLoading } = useWeather(location);
-  const { nextSchedule } = useSchedules();
-  const { options: transportOptions, distanceKm, minutesUntilStart } = useTransport({
-    origin: location,
-    schedule: nextSchedule,
-    weather,
-  });
-  const locationName = useReverseGeocode(location);
-
-  const topOption = transportOptions[0];
-  const departureIn =
-    topOption && minutesUntilStart !== null
-      ? minutesUntilStart - topOption.estimatedMinutes
-      : null;
+  const nextTask = mockTasks[0];
+  const bestRoute = mockRouteOptions[0];
 
   return (
-    <div className="px-4 pt-6 space-y-4">
-      {/* ヘッダー */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">MoveAssist</h1>
-          <p className="text-xs text-gray-500 mt-0.5">
-            {locLoading
-              ? '📡 位置情報を取得中...'
-              : locError
-              ? `⚠️ ${locError}`
-              : location
-              ? `📍 ${locationName}`
-              : '位置情報なし'}
-          </p>
-        </div>
-        <button
-          onClick={refresh}
-          className="w-9 h-9 bg-white border border-gray-200 rounded-xl flex items-center justify-center shadow-sm active:scale-95 transition-transform"
-          aria-label="更新"
+    <AppShell
+      title="今どう動くか"
+      description="現在地・予定・天気から、今のおすすめをすぐ確認できます。"
+    >
+      <div className="space-y-4">
+        <SectionCard
+          title="現在の状況"
+          action={<StatusPill label={mockWeather.label} tone="blue" />}
         >
-          <span className="text-lg">🔄</span>
-        </button>
-      </div>
+          <div className="space-y-2">
+            <p className="text-sm text-slate-600">現在地: 八王子駅付近（ダミー表示）</p>
+            <p className="text-sm text-slate-600">気温: {mockWeather.temperatureText}</p>
+            <div className="rounded-xl bg-blue-50 px-3 py-2 text-sm text-blue-800">
+              {mockWeather.note}
+            </div>
+          </div>
+        </SectionCard>
 
-      {/* 天気 */}
-      <WeatherCard weather={weather} loading={weatherLoading} error={weatherError} />
-
-      {/* 次の予定 */}
-      <section>
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-bold text-gray-700">次の予定</h2>
-          <Link href="/schedules" className="text-xs text-blue-600">
-            すべて見る →
-          </Link>
-        </div>
-        <NextScheduleCard schedule={nextSchedule} />
-      </section>
-
-      {/* 地図：現在地〜目的地 */}
-      {nextSchedule && (
-        <section>
-          <p className="text-xs text-gray-500 mb-1.5">
-            ルートマップ
-            {distanceKm !== null && (
-              <span className="ml-2 text-gray-700 font-medium">
-                直線距離 約{distanceKm.toFixed(1)} km
-              </span>
-            )}
-          </p>
-          <MapView
-            origin={location}
-            destination={nextSchedule.destination}
-            height="176px"
-          />
-        </section>
-      )}
-
-      {/* 出発目安バナー */}
-      {nextSchedule && topOption && departureIn !== null && minutesUntilStart !== null && minutesUntilStart > 0 && (
-        <div
-          className={`rounded-2xl p-4 ${
-            departureIn < 5
-              ? 'bg-red-50 border border-red-200'
-              : departureIn < 15
-              ? 'bg-amber-50 border border-amber-200'
-              : 'bg-blue-50 border border-blue-100'
-          }`}
-        >
-          <p
-            className={`text-sm font-bold ${
-              departureIn < 5 ? 'text-red-700' : departureIn < 15 ? 'text-amber-700' : 'text-blue-700'
-            }`}
-          >
-            {departureIn < 0
-              ? '🚨 今すぐ出発してください！'
-              : departureIn < 5
-              ? '🚨 まもなく出発時間です！'
-              : `🕐 出発目安：${formatMinutesUntil(departureIn)}`}
-          </p>
-          <p
-            className={`text-xs mt-1 ${
-              departureIn < 5 ? 'text-red-600' : departureIn < 15 ? 'text-amber-600' : 'text-blue-600'
-            }`}
-          >
-            {nextSchedule.destination.name} まで約 {topOption.estimatedMinutes} 分
-          </p>
-        </div>
-      )}
-
-      {/* おすすめ移動手段 */}
-      {topOption && (
-        <section>
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-bold text-gray-700">おすすめの移動手段</h2>
-            <Link href="/compare" className="text-xs text-blue-600">
-              全候補を比較 →
+        <SectionCard
+          title="次の予定"
+          action={
+            <Link href="/schedules" className="text-sm font-medium text-blue-600">
+              一覧へ
             </Link>
+          }
+        >
+          <div className="space-y-2">
+            <p className="text-base font-semibold text-slate-900">{nextTask.title}</p>
+            <p className="text-sm text-slate-600">
+              {nextTask.startTime} / {nextTask.destinationName}
+            </p>
+            <p className="text-sm text-slate-600">カテゴリ: {nextTask.category}</p>
+            {nextTask.memo ? (
+              <div className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                {nextTask.memo}
+              </div>
+            ) : null}
           </div>
-          <TransportCard option={topOption} rank={0} />
-        </section>
-      )}
+        </SectionCard>
 
-      {/* 周辺候補への導線 */}
-      <Link href="/nearby" className="block">
-        <div className="bg-white rounded-2xl border border-gray-200 p-4 flex items-center justify-between shadow-sm active:scale-[0.98] transition-transform">
-          <div>
-            <p className="font-medium text-gray-900">到着後の周辺スポット</p>
-            <p className="text-xs text-gray-500 mt-0.5">ランチ・カフェ・コンビニを確認</p>
+        <SectionCard
+          title="今のおすすめ移動"
+          action={
+            <Link href="/compare" className="text-sm font-medium text-blue-600">
+              比較を見る
+            </Link>
+          }
+        >
+          <RouteCard route={bestRoute} />
+        </SectionCard>
+
+        <SectionCard
+          title="到着後の提案"
+          action={
+            <Link href="/nearby" className="text-sm font-medium text-blue-600">
+              周辺候補へ
+            </Link>
+          }
+        >
+          <div className="space-y-2 text-sm text-slate-700">
+            <p>・雨なので駅直結または徒歩5分以内の候補を優先</p>
+            <p>・昼食予定のため、混雑しすぎないランチ候補を提案</p>
+            <p>・余裕があるならカフェ候補も確認</p>
           </div>
-          <span className="text-2xl">📍</span>
-        </div>
-      </Link>
-    </div>
+        </SectionCard>
+      </div>
+    </AppShell>
   );
 }
