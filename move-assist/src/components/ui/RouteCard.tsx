@@ -1,16 +1,8 @@
 import StatusPill from "@/components/ui/StatusPill";
+import type { RouteOption } from "@/lib/types";
 
 type RouteCardProps = {
-  route: {
-    id: string;
-    type: string;
-    durationText: string;
-    costText: string;
-    walkingLevel: "少" | "中" | "多";
-    scoreLabel: "おすすめ" | "候補" | "注意";
-    reason: string;
-    caution?: string;
-  };
+  route: RouteOption;
 };
 
 export default function RouteCard({ route }: RouteCardProps) {
