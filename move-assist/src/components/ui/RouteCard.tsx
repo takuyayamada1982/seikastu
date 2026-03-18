@@ -3,9 +3,10 @@ import type { RouteOption } from "@/lib/types";
 
 type RouteCardProps = {
   route: RouteOption;
+  badge?: "最短" | "最安" | "負担少";
 };
 
-export default function RouteCard({ route }: RouteCardProps) {
+export default function RouteCard({ route, badge }: RouteCardProps) {
   const pillTone =
     route.scoreLabel === "おすすめ"
       ? "blue"
@@ -16,8 +17,11 @@ export default function RouteCard({ route }: RouteCardProps) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-base font-bold text-slate-900">{route.type}</p>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-base font-bold text-slate-900">{route.type}</p>
+            {badge ? <StatusPill label={badge} tone="slate" /> : null}
+          </div>
           <p className="mt-1 text-sm text-slate-600">{route.reason}</p>
         </div>
         <StatusPill label={route.scoreLabel} tone={pillTone} />
