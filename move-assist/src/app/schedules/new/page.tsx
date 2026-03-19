@@ -16,6 +16,9 @@ const categories: TaskCategory[] = [
   "手続き",
 ];
 
+const fieldClassName =
+  "w-full rounded-[22px] border border-cyan-400/18 bg-slate-950/70 px-4 py-3 text-sm text-cyan-50 outline-none placeholder:text-cyan-100/35 shadow-[0_0_0_1px_rgba(34,211,238,0.04)] transition focus:border-cyan-300/45 focus:shadow-[0_0_0_1px_rgba(34,211,238,0.12),0_0_18px_rgba(34,211,238,0.12)]";
+
 export default function ScheduleNewPage() {
   const router = useRouter();
   const { createSchedule } = useSchedules();
@@ -54,67 +57,87 @@ export default function ScheduleNewPage() {
       description="予定を保存すると、ホームや比較画面に反映されます。"
     >
       <form className="space-y-4" onSubmit={handleSubmit}>
-        <div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">予定名</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="例: 昼食 / 打ち合わせ"
-            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none placeholder:text-slate-400"
-          />
+        <div className="cyber-panel rounded-[28px] p-4">
+          <div className="relative z-10">
+            <label className="mb-2 block text-sm font-medium text-cyan-100/80">
+              予定名
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="例: 昼食 / 打ち合わせ"
+              className={fieldClassName}
+            />
+          </div>
         </div>
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">カテゴリ</label>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value as TaskCategory)}
-            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none"
-          >
-            {categories.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
+        <div className="cyber-panel rounded-[28px] p-4">
+          <div className="relative z-10">
+            <label className="mb-2 block text-sm font-medium text-cyan-100/80">
+              カテゴリ
+            </label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value as TaskCategory)}
+              className={fieldClassName}
+            >
+              {categories.map((item) => (
+                <option key={item} value={item} className="bg-slate-950 text-cyan-50">
+                  {item}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">開始時刻</label>
-          <input
-            type="time"
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
-            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none"
-          />
+        <div className="cyber-panel rounded-[28px] p-4">
+          <div className="relative z-10">
+            <label className="mb-2 block text-sm font-medium text-cyan-100/80">
+              開始時刻
+            </label>
+            <input
+              type="time"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              className={fieldClassName}
+            />
+          </div>
         </div>
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">目的地</label>
-          <input
-            type="text"
-            value={destinationName}
-            onChange={(e) => setDestinationName(e.target.value)}
-            placeholder="例: 新宿駅 / 丸の内オフィス"
-            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none placeholder:text-slate-400"
-          />
+        <div className="cyber-panel rounded-[28px] p-4">
+          <div className="relative z-10">
+            <label className="mb-2 block text-sm font-medium text-cyan-100/80">
+              目的地
+            </label>
+            <input
+              type="text"
+              value={destinationName}
+              onChange={(e) => setDestinationName(e.target.value)}
+              placeholder="例: 新宿駅 / 丸の内オフィス"
+              className={fieldClassName}
+            />
+          </div>
         </div>
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">メモ</label>
-          <textarea
-            rows={4}
-            value={memo}
-            onChange={(e) => setMemo(e.target.value)}
-            placeholder="例: 10分前に着きたい / 駅近がよい"
-            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none placeholder:text-slate-400"
-          />
+        <div className="cyber-panel rounded-[28px] p-4">
+          <div className="relative z-10">
+            <label className="mb-2 block text-sm font-medium text-cyan-100/80">
+              メモ
+            </label>
+            <textarea
+              rows={4}
+              value={memo}
+              onChange={(e) => setMemo(e.target.value)}
+              placeholder="例: 10分前に着きたい / 駅近がよい"
+              className={fieldClassName}
+            />
+          </div>
         </div>
 
         <button
           type="submit"
-          className="w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm"
+          className="w-full rounded-[24px] border border-cyan-300/25 bg-gradient-to-r from-cyan-500/80 to-sky-500/80 px-4 py-3 text-sm font-semibold text-slate-950 shadow-[0_0_18px_rgba(34,211,238,0.28)]"
         >
           保存する
         </button>
