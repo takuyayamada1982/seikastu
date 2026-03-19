@@ -11,11 +11,11 @@ export default function SchedulesPage() {
   const { schedules } = useSchedules();
 
   return (
-    <AppShell title="予定一覧" description="予定を確認して、移動判断につなげます。">
+    <AppShell title="予定一覧" description="保存した予定をサイバーUIで確認します。">
       <div className="mb-4">
         <Link
           href="/schedules/new"
-          className="inline-flex w-full items-center justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm"
+          className="inline-flex w-full items-center justify-center rounded-[24px] bg-gradient-to-r from-cyan-500/80 to-sky-500/80 px-4 py-3 text-sm font-semibold text-slate-950 shadow-[0_0_18px_rgba(34,211,238,0.32)]"
         >
           予定を追加する
         </Link>
@@ -23,7 +23,7 @@ export default function SchedulesPage() {
 
       {schedules.length === 0 ? (
         <SectionCard title="予定はまだありません">
-          <p className="text-sm text-slate-700">
+          <p className="text-sm text-cyan-50/80">
             まずは予定を1件追加すると、ホームや比較画面に反映されます。
           </p>
         </SectionCard>
@@ -36,10 +36,10 @@ export default function SchedulesPage() {
                 action={<StatusPill label={task.category} tone="blue" />}
               >
                 <div className="space-y-1">
-                  <p className="text-sm text-slate-700">{task.startTime}</p>
-                  <p className="text-sm text-slate-700">{task.destinationName}</p>
+                  <p className="text-sm text-cyan-50/78">{task.startTime}</p>
+                  <p className="text-sm text-cyan-50/78">{task.destinationName}</p>
                   {task.memo ? (
-                    <p className="text-sm text-slate-500">{task.memo}</p>
+                    <p className="text-sm text-cyan-100/55">{task.memo}</p>
                   ) : null}
                 </div>
               </SectionCard>
