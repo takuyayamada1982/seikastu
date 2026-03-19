@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import AppShell from "@/components/ui/AppShell";
+import CyberRouteMap from "@/components/ui/CyberRouteMap";
 import RouteCard from "@/components/ui/RouteCard";
 import SectionCard from "@/components/ui/SectionCard";
 import StatusPill from "@/components/ui/StatusPill";
@@ -25,7 +26,7 @@ export default function ScheduleDetailPage() {
     return (
       <AppShell title="予定詳細" description="対象の予定が見つかりませんでした。">
         <SectionCard title="予定が見つかりません">
-          <Link href="/schedules" className="text-sm font-medium text-blue-600">
+          <Link href="/schedules" className="text-sm font-medium text-cyan-300">
             予定一覧へ戻る
           </Link>
         </SectionCard>
@@ -49,14 +50,20 @@ export default function ScheduleDetailPage() {
       : undefined;
 
   return (
-    <AppShell title="予定詳細" description="予定に対して、今のおすすめ判断を表示します。">
+    <AppShell title="予定詳細" description="予定ごとのルート判断を詳細表示します。">
       <div className="space-y-4">
+        <CyberRouteMap
+          fromLabel="現在地"
+          toLabel={task.destinationName}
+          durationText={bestRoute.durationText}
+        />
+
         <SectionCard title="予定情報">
           <div className="space-y-3">
-            <p className="text-base font-semibold text-slate-900">
+            <p className="text-lg font-semibold text-white">
               {CATEGORY_ICONS[task.category]} {task.title}
             </p>
-            <p className="text-sm text-slate-600">{task.destinationName}</p>
+            <p className="text-sm text-cyan-50/72">{task.destinationName}</p>
 
             <div className="flex flex-wrap gap-2">
               <StatusPill label={task.category} tone="slate" />
@@ -64,7 +71,7 @@ export default function ScheduleDetailPage() {
             </div>
 
             {task.memo ? (
-              <div className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
+              <div className="rounded-2xl border border-cyan-400/10 bg-cyan-500/5 px-3 py-3 text-sm text-cyan-50/80">
                 {task.memo}
               </div>
             ) : null}
@@ -73,11 +80,7 @@ export default function ScheduleDetailPage() {
 
         <SectionCard
           title="おすすめ移動"
-          action={
-            <Link href="/compare" className="text-sm font-medium text-blue-600">
-              比較へ
-            </Link>
-          }
+          action={<StatusPill label={bestBadge ?? "候補"} tone="blue" />}
         >
           <RouteCard route={bestRoute} badge={bestBadge} />
         </SectionCard>
@@ -85,12 +88,12 @@ export default function ScheduleDetailPage() {
         <SectionCard
           title="到着後の候補"
           action={
-            <Link href="/nearby" className="text-sm font-medium text-blue-600">
+            <Link href="/nearby" className="text-sm font-medium text-cyan-300">
               周辺画面へ
             </Link>
           }
         >
-          <div className="space-y-2 text-sm text-slate-700">
+          <div className="space-y-2 text-sm text-cyan-50/78">
             {suggestions.slice(0, 3).map((item) => (
               <p key={item.id}>・{item.title}</p>
             ))}
