@@ -1,22 +1,21 @@
+import { ReactNode } from "react";
+
 type Props = {
-  label: string;
-  tone?: "blue" | "green" | "amber" | "red" | "slate";
+  title: string;
+  action?: ReactNode;
+  children: ReactNode;
 };
 
-const toneClassMap: Record<NonNullable<Props["tone"]>, string> = {
-  blue: "bg-blue-50 text-blue-700 border-blue-200",
-  green: "bg-green-50 text-green-700 border-green-200",
-  amber: "bg-amber-50 text-amber-700 border-amber-200",
-  red: "bg-red-50 text-red-700 border-red-200",
-  slate: "bg-slate-100 text-slate-700 border-slate-200",
-};
-
-export default function StatusPill({ label, tone = "slate" }: Props) {
+export default function SectionCard({ title, action, children }: Props) {
   return (
-    <span
-      className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-medium ${toneClassMap[tone]}`}
-    >
-      {label}
-    </span>
+    <section className="cyber-panel cyber-outline rounded-[28px] p-4">
+      <div className="relative z-10">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h2 className="text-base font-semibold text-white neon-text">{title}</h2>
+          {action}
+        </div>
+        {children}
+      </div>
+    </section>
   );
 }
