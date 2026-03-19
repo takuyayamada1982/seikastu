@@ -1,39 +1,32 @@
-"use client";
+import { ReactNode } from "react";
+import BottomNav from "@/components/ui/BottomNav";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+type Props = {
+  title: string;
+  description?: string;
+  children: ReactNode;
+};
 
-const items = [
-  { href: "/", label: "ホーム" },
-  { href: "/compare", label: "比較" },
-  { href: "/schedules", label: "予定" },
-  { href: "/nearby", label: "周辺" },
-];
-
-export default function BottomNav() {
-  const pathname = usePathname();
-
+export default function AppShell({ title, description, children }: Props) {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto grid max-w-md grid-cols-4">
-        {items.map((item) => {
-          const active =
-            pathname === item.href ||
-            (item.href !== "/" && pathname.startsWith(item.href));
+    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col text-cyan-50 safe-area-top safe-area-bottom">
+      <header className="sticky top-0 z-30 border-b border-cyan-400/10 bg-slate-950/78 backdrop-blur-xl">
+        <div className="mx-auto w-full max-w-md px-4 py-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.26em] text-cyan-300/80 neon-text">
+            MoveAssist
+          </p>
+          <h1 className="mt-1 text-xl font-bold text-white neon-text">{title}</h1>
+          {description ? (
+            <p className="mt-1 text-sm text-cyan-100/70">{description}</p>
+          ) : null}
+        </div>
+      </header>
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`px-2 py-3 text-center text-xs font-medium ${
-                active ? "text-blue-600" : "text-slate-500"
-              }`}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
+      <main className="mx-auto flex-1 w-full max-w-md px-4 py-4 pb-28">
+        {children}
+      </main>
+
+      <BottomNav />
+    </div>
   );
 }
