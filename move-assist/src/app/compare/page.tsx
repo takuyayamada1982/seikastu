@@ -1,6 +1,7 @@
 "use client";
 
 import AppShell from "@/components/ui/AppShell";
+import CyberRouteMap from "@/components/ui/CyberRouteMap";
 import RouteCard from "@/components/ui/RouteCard";
 import { useCurrentPosition } from "@/lib/hooks/useCurrentPosition";
 import { useSchedules } from "@/lib/hooks/useSchedules";
@@ -28,27 +29,37 @@ export default function ComparePage() {
   return (
     <AppShell
       title="移動比較"
-      description="候補を見比べて、今の状況に合う移動を選びます。"
+      description="複数候補をサイバーUIで比較します。"
     >
-      <div className="mb-4 rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-700">
-        <p>天気: {weather.label}</p>
-        <p>次の予定: {nextSchedule?.title ?? "未設定"}</p>
-        <p>開始まで: {formatMinutesUntil(minutesUntil)}</p>
-      </div>
-
       <div className="space-y-4">
-        {routes.map((route) => {
-          const badge =
-            route.id === badges.fastestId
-              ? "最短"
-              : route.id === badges.cheapestId
-              ? "最安"
-              : route.id === badges.easiestId
-              ? "負担少"
-              : undefined;
+        <CyberRouteMap
+          fromLabel="現在地"
+          toLabel={nextSchedule?.destinationName ?? "目的地未設定"}
+          durationText={routes[0]?.durationText ?? "推定"}
+        />
 
-          return <RouteCard key={route.id} route={route} badge={badge} />;
-        })}
+        <div className="cyber-panel rounded-[26px] p-4">
+          <div className="relative z-10 text-sm text-cyan-100/75">
+            <p>天気: {weather.label}</p>
+            <p>開始まで: {formatMinutesUntil(minutesUntil)}</p>
+            <p>予定: {nextSchedule?.title ?? "未設定"}</p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {routes.map((route) => {
+            const badge =
+              route.id === badges.fastestId
+                ? "最短"
+                : route.id === badges.cheapestId
+                ? "最安"
+                : route.id === badges.easiestId
+                ? "負担少"
+                : undefined;
+
+            return <RouteCard key={route.id} route={route} badge={badge} />;
+          })}
+        </div>
       </div>
     </AppShell>
   );
