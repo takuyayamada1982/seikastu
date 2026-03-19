@@ -13,13 +13,9 @@ export default function NearbyPage() {
 
   return (
     <AppShell
-      title="到着後の候補"
-      description="予定カテゴリに合わせて、近くで取りやすい行動候補を表示します。"
+      title="到着後の提案"
+      description="周辺候補も同じサイバートーンで表示します。"
     >
-      <div className="mb-4 rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-700">
-        予定カテゴリ: {category}
-      </div>
-
       <div className="space-y-4">
         {suggestions.map((item) => (
           <SectionCard
@@ -28,8 +24,8 @@ export default function NearbyPage() {
             action={<StatusPill label={item.type} tone="green" />}
           >
             <div className="space-y-2">
-              <p className="text-sm text-slate-700">{item.description}</p>
-              <p className="text-sm text-slate-500">{item.distanceText}</p>
+              <p className="text-sm text-cyan-50/78">{item.description}</p>
+              <p className="text-sm text-cyan-200/55">{item.distanceText}</p>
             </div>
           </SectionCard>
         ))}
