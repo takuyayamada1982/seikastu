@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import AppShell from "@/components/ui/AppShell";
+import AlertPanel from "@/components/ui/AlertPanel";
+import CurrentStateBanner from "@/components/ui/CurrentStateBanner";
 import CyberRouteMap from "@/components/ui/CyberRouteMap";
-import RouteCard from "@/components/ui/RouteCard";
-import SectionCard from "@/components/ui/SectionCard";
-import StatusPill from "@/components/ui/StatusPill";
-import { CATEGORY_ICONS } from "@/lib/types";
+import NextScheduleHeroCard from "@/components/ui/NextScheduleHeroCard";
+import PrimaryActionDock from "@/components/ui/PrimaryActionDock";
+import RecommendationTripleCards from "@/components/ui/RecommendationTripleCards";
 import { useCurrentPosition } from "@/lib/hooks/useCurrentPosition";
 import { useSchedules } from "@/lib/hooks/useSchedules";
 import { useWeather } from "@/lib/hooks/useWeather";
@@ -17,166 +17,99 @@ import {
   getRouteBadges,
 } from "@/lib/scoring/routes";
 
+function resolveStateLabel(minutesUntil: number | null) {
+  if (minutesUntil === null) return "予定なし" as const;
+  if (minutesUntil < 0) return "到着済み" as const;
+  if (minutesUntil <= 20) return "移動中" as const;
+  if (minutesUntil <= 60) return "出発準備" as const;
+  return "休憩中" as const;
+}
+
+function resolveStateSubLabel(
+  minutesUntil: number | null,
+  hasPosition: boolean,
+  weatherLabel: string
+) {
+  if (minutesUntil === null) return "まず予定を追加すると提案が始まります。";
+  if (!hasPosition) return "位置情報を取得すると提案精度が上がります。";
+  if (minutesUntil < 0) return "予定時刻を過ぎています。現在の状況を確認してください。";
+  if (minutesUntil <= 20) return `まもなく開始です。${weatherLabel}条件で移動候補を表示中。`;
+  if (minutesUntil <= 60) return `そろそろ出発準備です。${weatherLabel}条件を反映しています。`;
+  return "まだ余裕があります。次の予定に向けて候補を準備しています。";
+}
+
+function resolveAlert(minutesUntil: number | null, weatherLabel: string) {
+  if (minutesUntil === null) {
+    return {
+      title: "次の予定が未設定です",
+      detail: "Googleカレンダー連携または予定追加で、移動提案を開始できます。",
+    };
+  }
+
+  if (minutesUntil <= 15 && minutesUntil >= 0) {
+    return {
+      title: "そろそろ出発時間です",
+      detail: "出発は15分前が目安です。今の候補から選ぶのがおすすめです。",
+    };
+  }
+
+  if (weatherLabel === "雨") {
+    return {
+      title: "雨のため徒歩候補は注意です",
+      detail: "公共交通やタクシーを優先して比較しています。",
+    };
+  }
+
+  return {
+    title: "今の予定に合わせて候補を更新中です",
+    detail: "開始時刻と天気を踏まえて最大3件の候補を表示しています。",
+  };
+}
+
 export default function HomePage() {
   const { nextSchedule } = useSchedules();
-  const { position, loading: positionLoading, error: positionError } = useCurrentPosition();
-  const { weather, loading: weatherLoading } = useWeather(position);
+  const { position } = useCurrentPosition();
+  const { weather } = useWeather(position);
 
   const routes = buildRouteOptions(
     nextSchedule?.category ?? "会議",
     weather.label,
     nextSchedule?.startTime
   );
-  const bestRoute = routes[0];
-  const badges = getRouteBadges(routes);
-  const minutesUntil = getMinutesUntil(nextSchedule?.startTime);
 
-  const bestBadge =
-    bestRoute.id === badges.fastestId
-      ? "最短"
-      : bestRoute.id === badges.cheapestId
-      ? "最安"
-      : bestRoute.id === badges.easiestId
-      ? "負担少"
-      : undefined;
+  const minutesUntil = getMinutesUntil(nextSchedule?.startTime);
+  const minutesLabel = formatMinutesUntil(minutesUntil);
+  const stateLabel = resolveStateLabel(minutesUntil);
+  const stateSubLabel = resolveStateSubLabel(minutesUntil, !!position, weather.label);
+  const alert = resolveAlert(minutesUntil, weather.label);
+  const badges = getRouteBadges(routes);
 
   return (
     <AppShell
       title="今どう動くか"
-      description="現在地・予定・天気から、今の最適な移動を提示します。"
+      description="予定を起点に、今やるべき移動と行動を見やすく提示します。"
     >
       <div className="space-y-4">
-        <section className="cyber-panel cyber-outline rounded-[30px] p-5">
-          <div className="relative z-10">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300/72">
-                  LIVE STATUS
-                </p>
-                <h2 className="mt-2 text-2xl font-bold text-white neon-text">
-                  MOVE ASSIST
-                </h2>
-                <p className="mt-2 text-sm leading-6 text-cyan-50/70">
-                  サイバーUIで、次の予定と移動候補を即時に判断します。
-                </p>
-              </div>
+        <CurrentStateBanner stateLabel={stateLabel} subLabel={stateSubLabel} />
 
-              <StatusPill
-                label={weatherLoading ? "取得中" : `${weather.label} ${weather.temperatureText}`}
-                tone="blue"
-              />
-            </div>
+        <NextScheduleHeroCard schedule={nextSchedule} minutesLabel={minutesLabel} />
 
-            <div className="mt-4 grid grid-cols-3 gap-3">
-              <div className="rounded-[22px] border border-cyan-400/10 bg-cyan-500/5 p-3">
-                <p className="text-[11px] tracking-wide text-cyan-100/55">現在地</p>
-                <p className="mt-1 text-sm font-semibold text-cyan-50">
-                  {positionLoading ? "取得中" : position ? "取得済み" : "未取得"}
-                </p>
-              </div>
-              <div className="rounded-[22px] border border-cyan-400/10 bg-cyan-500/5 p-3">
-                <p className="text-[11px] tracking-wide text-cyan-100/55">天気</p>
-                <p className="mt-1 text-sm font-semibold text-cyan-50">
-                  {weatherLoading ? "取得中" : weather.label}
-                </p>
-              </div>
-              <div className="rounded-[22px] border border-cyan-400/10 bg-cyan-500/5 p-3">
-                <p className="text-[11px] tracking-wide text-cyan-100/55">開始まで</p>
-                <p className="mt-1 text-sm font-semibold text-emerald-300">
-                  {formatMinutesUntil(minutesUntil)}
-                </p>
-              </div>
-            </div>
-
-            {positionError ? (
-              <div className="mt-4 rounded-2xl border border-amber-400/16 bg-amber-400/8 px-3 py-3 text-sm text-amber-200">
-                {positionError}
-              </div>
-            ) : null}
-          </div>
-        </section>
+        <AlertPanel title={alert.title} detail={alert.detail} />
 
         <CyberRouteMap
           fromLabel="現在地"
           toLabel={nextSchedule?.destinationName ?? "目的地未設定"}
-          durationText={bestRoute.durationText}
+          durationText={routes[0]?.durationText ?? "未算出"}
         />
 
-        <SectionCard
-          title="次の予定"
-          action={
-            <Link href="/schedules" className="text-sm font-medium text-cyan-300">
-              予定一覧
-            </Link>
-          }
-        >
-          {nextSchedule ? (
-            <div className="space-y-3">
-              <div className="rounded-[22px] border border-fuchsia-400/12 bg-fuchsia-500/[0.05] p-4">
-                <p className="text-lg font-semibold text-white">
-                  {CATEGORY_ICONS[nextSchedule.category]} {nextSchedule.title}
-                </p>
-                <p className="mt-2 text-sm text-cyan-100/72">
-                  {nextSchedule.destinationName}
-                </p>
-                <p className="mt-1 text-base font-semibold text-cyan-300">
-                  {nextSchedule.startTime} 開始
-                </p>
+        <RecommendationTripleCards
+          routes={routes}
+          fastestId={badges.fastestId}
+          cheapestId={badges.cheapestId}
+          easiestId={badges.easiestId}
+        />
 
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <StatusPill label={nextSchedule.category} tone="slate" />
-                  <StatusPill label={formatMinutesUntil(minutesUntil)} tone="green" />
-                </div>
-              </div>
-
-              {nextSchedule.memo ? (
-                <div className="rounded-2xl border border-cyan-400/10 bg-cyan-500/5 px-3 py-3 text-sm text-cyan-50/80">
-                  {nextSchedule.memo}
-                </div>
-              ) : null}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <p className="text-sm text-cyan-50/80">予定がまだありません。</p>
-              <Link
-                href="/schedules/new"
-                className="inline-flex rounded-2xl bg-gradient-to-r from-cyan-500/80 to-sky-500/80 px-4 py-2 text-sm font-semibold text-slate-950 shadow-[0_0_18px_rgba(34,211,238,0.32)]"
-              >
-                予定を追加する
-              </Link>
-            </div>
-          )}
-        </SectionCard>
-
-        <SectionCard
-          title="おすすめの移動"
-          action={<StatusPill label={bestBadge ?? "候補"} tone="blue" />}
-        >
-          <RouteCard route={bestRoute} badge={bestBadge} />
-        </SectionCard>
-
-        <div className="grid grid-cols-3 gap-3">
-          <Link
-            href="/compare"
-            className="cyber-panel rounded-[24px] p-4 text-center transition hover:translate-y-[-1px]"
-          >
-            <p className="text-sm font-semibold text-cyan-50">ルート比較</p>
-          </Link>
-
-          <Link
-            href="/nearby"
-            className="cyber-panel rounded-[24px] p-4 text-center transition hover:translate-y-[-1px]"
-          >
-            <p className="text-sm font-semibold text-cyan-50">周辺スポット</p>
-          </Link>
-
-          <Link
-            href="/schedules"
-            className="cyber-panel rounded-[24px] p-4 text-center transition hover:translate-y-[-1px]"
-          >
-            <p className="text-sm font-semibold text-cyan-50">予定一覧</p>
-          </Link>
-        </div>
+        <PrimaryActionDock />
       </div>
     </AppShell>
   );
