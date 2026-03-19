@@ -43,53 +43,53 @@ export default function HomePage() {
   return (
     <AppShell
       title="今どう動くか"
-      description="現在地・予定・天気から、今の最適な判断を提示します。"
+      description="現在地・予定・天気から、今の最適な移動を提示します。"
     >
       <div className="space-y-4">
         <section className="cyber-panel cyber-outline rounded-[30px] p-5">
           <div className="relative z-10">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300/70">
-                  Live Assist
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300/72">
+                  LIVE STATUS
                 </p>
                 <h2 className="mt-2 text-2xl font-bold text-white neon-text">
                   MOVE ASSIST
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-cyan-50/70">
-                  次の予定と現在条件から、今選ぶべき移動を提示します。
+                  サイバーUIで、次の予定と移動候補を即時に判断します。
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-3 py-2 text-right neon-blue">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-cyan-200/70">
-                  Weather
-                </p>
-                <p className="mt-1 text-sm font-semibold text-cyan-50">
-                  {weatherLoading ? "取得中" : `${weather.label} ${weather.temperatureText}`}
-                </p>
-              </div>
+              <StatusPill
+                label={weatherLoading ? "取得中" : `${weather.label} ${weather.temperatureText}`}
+                tone="blue"
+              />
             </div>
 
-            <div className="mt-4 flex flex-wrap gap-2">
-              <StatusPill
-                label={
-                  positionLoading
-                    ? "現在地 取得中"
-                    : position
-                    ? "現在地 取得済み"
-                    : "現在地 未取得"
-                }
-                tone="slate"
-              />
-              <StatusPill label={formatMinutesUntil(minutesUntil)} tone="green" />
-              {nextSchedule ? (
-                <StatusPill label={nextSchedule.category} tone="blue" />
-              ) : null}
+            <div className="mt-4 grid grid-cols-3 gap-3">
+              <div className="rounded-[22px] border border-cyan-400/10 bg-cyan-500/5 p-3">
+                <p className="text-[11px] tracking-wide text-cyan-100/55">現在地</p>
+                <p className="mt-1 text-sm font-semibold text-cyan-50">
+                  {positionLoading ? "取得中" : position ? "取得済み" : "未取得"}
+                </p>
+              </div>
+              <div className="rounded-[22px] border border-cyan-400/10 bg-cyan-500/5 p-3">
+                <p className="text-[11px] tracking-wide text-cyan-100/55">天気</p>
+                <p className="mt-1 text-sm font-semibold text-cyan-50">
+                  {weatherLoading ? "取得中" : weather.label}
+                </p>
+              </div>
+              <div className="rounded-[22px] border border-cyan-400/10 bg-cyan-500/5 p-3">
+                <p className="text-[11px] tracking-wide text-cyan-100/55">開始まで</p>
+                <p className="mt-1 text-sm font-semibold text-emerald-300">
+                  {formatMinutesUntil(minutesUntil)}
+                </p>
+              </div>
             </div>
 
             {positionError ? (
-              <div className="mt-4 rounded-2xl border border-amber-400/20 bg-amber-400/8 px-3 py-3 text-sm text-amber-200">
+              <div className="mt-4 rounded-2xl border border-amber-400/16 bg-amber-400/8 px-3 py-3 text-sm text-amber-200">
                 {positionError}
               </div>
             ) : null}
@@ -106,24 +106,27 @@ export default function HomePage() {
           title="次の予定"
           action={
             <Link href="/schedules" className="text-sm font-medium text-cyan-300">
-              一覧へ
+              予定一覧
             </Link>
           }
         >
           {nextSchedule ? (
             <div className="space-y-3">
-              <div>
-                <p className="text-base font-semibold text-white">
+              <div className="rounded-[22px] border border-fuchsia-400/12 bg-fuchsia-500/[0.05] p-4">
+                <p className="text-lg font-semibold text-white">
                   {CATEGORY_ICONS[nextSchedule.category]} {nextSchedule.title}
                 </p>
-                <p className="mt-1 text-sm text-cyan-100/70">
-                  {nextSchedule.startTime} / {nextSchedule.destinationName}
+                <p className="mt-2 text-sm text-cyan-100/72">
+                  {nextSchedule.destinationName}
                 </p>
-              </div>
+                <p className="mt-1 text-base font-semibold text-cyan-300">
+                  {nextSchedule.startTime} 開始
+                </p>
 
-              <div className="flex flex-wrap gap-2">
-                <StatusPill label={nextSchedule.category} tone="slate" />
-                <StatusPill label={formatMinutesUntil(minutesUntil)} tone="green" />
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <StatusPill label={nextSchedule.category} tone="slate" />
+                  <StatusPill label={formatMinutesUntil(minutesUntil)} tone="green" />
+                </div>
               </div>
 
               {nextSchedule.memo ? (
@@ -137,7 +140,7 @@ export default function HomePage() {
               <p className="text-sm text-cyan-50/80">予定がまだありません。</p>
               <Link
                 href="/schedules/new"
-                className="inline-flex rounded-2xl bg-gradient-to-r from-cyan-500 to-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-[0_0_18px_rgba(34,211,238,0.35)]"
+                className="inline-flex rounded-2xl bg-gradient-to-r from-cyan-500/80 to-sky-500/80 px-4 py-2 text-sm font-semibold text-slate-950 shadow-[0_0_18px_rgba(34,211,238,0.32)]"
               >
                 予定を追加する
               </Link>
@@ -146,37 +149,32 @@ export default function HomePage() {
         </SectionCard>
 
         <SectionCard
-          title="今のおすすめ移動"
-          action={
-            <Link href="/compare" className="text-sm font-medium text-cyan-300">
-              比較を見る
-            </Link>
-          }
+          title="おすすめの移動"
+          action={<StatusPill label={bestBadge ?? "候補"} tone="blue" />}
         >
           <RouteCard route={bestRoute} badge={bestBadge} />
         </SectionCard>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           <Link
             href="/compare"
-            className="cyber-panel rounded-[24px] p-4 text-left transition hover:translate-y-[-1px]"
+            className="cyber-panel rounded-[24px] p-4 text-center transition hover:translate-y-[-1px]"
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300/70">
-              Compare
-            </p>
-            <p className="mt-2 text-base font-semibold text-white">移動比較</p>
-            <p className="mt-1 text-sm text-cyan-100/70">他の候補を見る</p>
+            <p className="text-sm font-semibold text-cyan-50">ルート比較</p>
           </Link>
 
           <Link
             href="/nearby"
-            className="cyber-panel rounded-[24px] p-4 text-left transition hover:translate-y-[-1px]"
+            className="cyber-panel rounded-[24px] p-4 text-center transition hover:translate-y-[-1px]"
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-fuchsia-300/70">
-              Nearby
-            </p>
-            <p className="mt-2 text-base font-semibold text-white">到着後の提案</p>
-            <p className="mt-1 text-sm text-cyan-100/70">周辺候補を見る</p>
+            <p className="text-sm font-semibold text-cyan-50">周辺スポット</p>
+          </Link>
+
+          <Link
+            href="/schedules"
+            className="cyber-panel rounded-[24px] p-4 text-center transition hover:translate-y-[-1px]"
+          >
+            <p className="text-sm font-semibold text-cyan-50">予定一覧</p>
           </Link>
         </div>
       </div>
